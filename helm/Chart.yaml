@@ -1,0 +1,19 @@
+apiVersion: v2
+name: k8-gluetun-http-proxy
+description: Deploy gluetun http proxy
+
+type: application
+version: 0.1.0
+appVersion: v0.0.01
+
+keywords:
+- homelab
+- http
+- proxy
+- gluetun
+
+home: https://github.com/k8-homelab/k8-gluetun-http-proxy
+
+maintainers:
+- name: Tim Hibbard
+  email: vptimmy@gmail.com

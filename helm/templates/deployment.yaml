@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Chart.Name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion }}
+    helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}
+
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}
+
+    spec:
+      imagePullSecrets:
+        - name: harbor-credentials
+
+      containers:
+        - name: {{ .Chart.Name }}
+          image: registry.hibbard.dev/proxy/qmcgaw/gluetun:latest
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - name: http-proxy
+              containerPort: 8888
+
+          securityContext:
+            allowPrivilegeEscalation: true
+            privileged: true
+            capabilities:
+              add:
+                - NET_ADMIN
+
+          env:
+            - name: HTTPPROXY
+              value: "on"
+
+            - name: HTTPPROXY_LOG
+              value: "on"
+
+            - name: VPN_SERVICE_PROVIDER
+              value: nordvpn
+
+            - name: OPENVPN_USER
+              valueFrom:
+                secretKeyRef:
+                  name: nordvpn-credentials
+                  key: username
+
+            - name: OPENVPN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: nordvpn-credentials
+                  key: password
+
+            - name: SERVER_COUNTRIES
+              value: United States
+
+            - name: FIREWALL_OUTBOUND_SUBNETS
+              value: "10.0.0.0/8"
+
+            - name:  FIREWALL_INPUT_PORTS
+              value: "8888"
+
+            - name: DNS_KEEP_NAMESERVER
+              value: "on"
+
+            - name: DOT 
+              value: "off"
+
+          resources:
+            requests:
+              memory: 100Mi
+              cpu: 100m
+            limits:
+              memory: 200Mi
+              cpu: 500m

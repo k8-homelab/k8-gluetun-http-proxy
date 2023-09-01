@@ -1,0 +1,17 @@
+apiVersion: skaffold/v2beta25
+kind: config
+deploy:
+  helm:
+    hooks:
+      before:
+      - host:
+          command: ["helm", "dependency", "update", "helm"]
+
+    releases:
+    - name: k8-gluetun-http-proxy
+      namespace: k8-gluetun-http-proxy
+      createNamespace: true
+      chartPath: helm
+      valuesFiles:
+      - helm/values.yaml
+      upgradeOnChange: true

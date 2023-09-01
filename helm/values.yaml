@@ -1,0 +1,2 @@
+namespace: k8-gluetun-http-proxy
+metallbIP: "10.0.20.245/32"
