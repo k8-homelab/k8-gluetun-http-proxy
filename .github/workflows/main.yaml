@@ -1,0 +1,34 @@
+name: deploy
+
+on:
+  workflow_dispatch:
+  push:
+    paths-ignore:
+      - 'README.md'
+      
+    branches:
+      - 'main'
+
+jobs:
+  deploy:
+    runs-on: 
+      - self-hosted
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      - name: Deploy To Argo
+        uses: clowdhaus/argo-cd-action/@main
+        with:
+          command: app create ${{ github.event.repository.name }}
+          options: >
+            --server argo.home.lab
+            --auth-token ${{ secrets.ARGO_TOKEN }}
+            --insecure
+            --repo git@github.com:k8-homelab/${{ github.event.repository.name }}.git
+            --path helm
+            --upsert
+            --sync-policy auto
+            --dest-server https://kubernetes.default.svc
+            --dest-namespace k8-gluetun-http-proxy
